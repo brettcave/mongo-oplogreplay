@@ -1,6 +1,6 @@
 require 'mongoriver'
 require 'mongo'
-require 'oplogreplayer/riveroutlet'
+require 'oplogreplayer/mongobridge'
 
 module Oplogreplayer
   class Replayer
@@ -8,10 +8,16 @@ module Oplogreplayer
       mongo = Mongo::MongoClient.new(host,port)
       mongo.db("admin").authenticate(username,password)
 
+      # TODO: riverconfig to be determined from a config file and/or parameters.
+      riverconfig = {}
 
+      # TODO: logging
+      log = Log4r::Logger.new('Stripe')
+      log.outputters = Log4r::StdoutOutputter.new(STDERR)
+      log.level = Log4r::INFO
       tailer = Mongoriver::Tailer.new([mongo], :existing)
-      outlet = Oplogreplayer::Riveroutlet.new()
-      stream = Mongoriver::Stream.new(tailer,outlet)
+      bridge = Oplogreplayer::Mongobridge.new(riverconfig)
+      stream = Mongoriver::Stream.new(tailer,bridge)
       stream.run_forever()
 
     end

@@ -1,4 +1,4 @@
-equire 'oplogreplayer'
+require 'oplogreplayer'
 
 describe Oplogreplayer::Replayer do
   it "replays oplog" do
