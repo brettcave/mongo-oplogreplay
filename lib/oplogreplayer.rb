@@ -1,6 +1,5 @@
-require "oplogreplayer/version"
-require 'mongoriver'
-
-module Oplogreplayer < Mongoriver::AbstractOutlet
-
+module Oplogreplayer
 end
+
+require "oplogreplayer/version"
+require "oplogreplayer/replayer"
