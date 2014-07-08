@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'oplogreplayer/cli'
+Oplogreplayer::CLI.start
