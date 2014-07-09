@@ -40,6 +40,7 @@ module Oplogreplayer
       end
     end
 
+    # This is potentially bad - a find and update for every oplog....
     def update_optime(timestamp)
       # track what's been written with this - write optime to the fs, perhaps periodically.
       @log.info("Optime: #{timestamp}")

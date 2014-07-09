@@ -39,7 +39,9 @@ module Oplogreplayer
         # destination mongo seems better suited though. I'm going to use the local db for now.
         stream.run_forever(bridge.getOplogTimestamp)
       else
-
+        # No timestamp and no resume.... we're doing a full replay.
+        log.info("No resume, no timestamp - full oplog replay.")
+        stream.run_forever()
       end
     end
 
