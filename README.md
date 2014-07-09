@@ -21,6 +21,25 @@ Or install it yourself as:
 
 TODO: confirm usage once parameter syntax has been finalized.
 
+## Configuration
+
+    resume: true
+
+    source:
+      replicaSet:	rs_name
+      host:		    "rs_host_1:27017,rs_host_2:27017"
+      username:     rsUser
+      password:     rsPass
+      initialDb:	admin
+
+    dest:
+      mode:		single
+      host:		"localhost:27017"
+      username:	localUser
+      password:	localPass
+      initialDb:	admin
+
+
 ## Contributing
 
 1. Fork it ( http://github.com/brettcave/oplogreplayer/fork )
