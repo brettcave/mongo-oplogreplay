@@ -3,8 +3,6 @@ require 'mongoriver'
 module Oplogreplayer
   class Mongobridge < Mongoriver::AbstractOutlet
 
-    # include Oplogreplayer::Logging
-
     @_mongoClient
     @log
     @filterDbs = nil
@@ -14,20 +12,20 @@ module Oplogreplayer
 
       setupLogger
 
-      # set up filters and destination stuff from config.
-      # puts "Initializing bridge with config #{config.inspect}"
-      connect_uri = "mongodb://"
-      connect_uri += "#{config["username"]}:#{config["password"]}"
-      connect_uri += "@#{config["host"]}"
-      connect_uri += "/#{config["initialDb"]}"
-      connect_uri += "?replicaSet=#{config["replicaSet"]}" unless config["mode"] == "single"
+      @log.info("Mongo bridge being configured")
 
-      if config["mode"] == "single"
-        @log.info("Setting up single target")
-        @_mongoClient = Mongo::MongoClient.from_uri(connect_uri)
-      else
-        @log.info("Setting up RS target")
+      connect_uri = "mongodb://"
+      connect_uri += "#{config["username"]}:#{config["password"]}@" if config["username"] and config["password"]
+      connect_uri += "#{config["host"]}"
+      connect_uri += "/#{config["initialDb"]}"
+      connect_uri += "?replicaSet=#{config["replicaSet"]}" if config["replicaSet"]
+
+      if config["replicaSet"]
         @_mongoClient = Mongo::MongoReplicaSetClient.from_uri(connect_uri)
+        @log.info("Target connection configured. Target is a replica set.")
+      else
+        @_mongoClient = Mongo::MongoClient.from_uri(connect_uri)
+        @log.info("Target connection configured. Target is a single instance.")
       end
 
       if config["onlyDbs"]
@@ -39,11 +37,11 @@ module Oplogreplayer
     def getOplogTimestamp()
       findStamp = @_mongoClient.db("local").collection("oplog.tracker").find_one()
       if findStamp
-        @log.info("Stamp found: #{findStamp.inspect}")
+        @log.debug("Stamp found: #{findStamp.inspect}")
         # We return timestamp+1 as "timestamp" was already replayed before shutdown.
         findStamp["timestamp"]+1
       else
-        @log.info("No stamp found")
+        @log.debug("No stamp found. That should mean full replay.")
         nil
       end
     end
@@ -51,8 +49,8 @@ module Oplogreplayer
     # This is potentially bad - a find and update for every oplog....
     def update_optime(timestamp)
       # track what's been written with this - write optime to the fs, perhaps periodically.
-      @log.info("Optime: #{timestamp}")
-      @_mongoClient.db("local").collection("oplog.tracker").find_and_modify({:query => {}, :update => {'timestamp' => timestamp}, :upsert => true})
+      @log.debug("Optime: #{timestamp}")
+      @_mongoClient.db("local").collection("oplog.tracker").update({}, {'timestamp' => timestamp}, {:upsert => true})
     end
 
     def insert(db_name, collection_name, document)
