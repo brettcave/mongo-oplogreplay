@@ -22,7 +22,6 @@ module Oplogreplayer
       connect_uri = "mongodb://"
       connect_uri += "#{sourceConfig["username"]}:#{sourceConfig["password"]}@" if sourceConfig["username"] and sourceConfig["password"]
       connect_uri += "#{sourceConfig["host"]}"
-      connect_uri += "/#{sourceConfig["initialDb"]}"
       connect_uri += "?replicaSet=#{sourceConfig["replicaSet"]}"
 
       log.info("Setting up client for source")

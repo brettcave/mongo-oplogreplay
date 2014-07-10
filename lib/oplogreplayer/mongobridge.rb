@@ -17,7 +17,6 @@ module Oplogreplayer
       connect_uri = "mongodb://"
       connect_uri += "#{config["username"]}:#{config["password"]}@" if config["username"] and config["password"]
       connect_uri += "#{config["host"]}"
-      connect_uri += "/#{config["initialDb"]}"
       connect_uri += "?replicaSet=#{config["replicaSet"]}" if config["replicaSet"]
 
       if config["replicaSet"]

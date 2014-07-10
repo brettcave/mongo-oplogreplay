@@ -17,11 +17,9 @@ Or install it yourself as:
 
     $ gem install oplogreplayer
 
-## Usage
-
-TODO: confirm usage once parameter syntax has been finalized.
-
 ## Configuration
+
+Here is a sample configuration file that can be used.
 
     resume: true
 
@@ -30,14 +28,30 @@ TODO: confirm usage once parameter syntax has been finalized.
       host:		    "rs_host_1:27017,rs_host_2:27017"
       username:     rsUser
       password:     rsPass
-      initialDb:	admin
 
     dest:
-      mode:		single
       host:		"localhost:27017"
-      username:	localUser
-      password:	localPass
-      initialDb:	admin
+      onlyDbs:  "foo,bar"
+
+The example above shows how use a replicaset with authentication enabled as a source, and a single instance with no
+authentication as a target.
+
+`resume` - determines if the oplog replay is to be resumed from the last known point. A timestamp is stored at `dest` in local.oplog.status that is used for resumes.
+
+`source` and `dest` are the "from" and "to" servers. The source should be a replicaset (for the oplog). The example above shows all the used keys. The following affects how the connection to mongo is made, in both source and dest
+
+ * If there is no username and password, then authentication is disabled
+ * the presence of `replicaSet` in the config is used to determine whether to use a regular client or replica set client. Removing `replicaSet` but leaving a comma-seperated list of hosts may produce unpredictable results.
+
+`onlyDbs` will enable filtering on the replay, so that only the databases in the list will have operations executed on them.
+
+## Usage
+
+`oplogreplayer mongo2mongo -c path/to/oplogConf.yaml`
+
+### Options
+
+`-t / --timestamp` - Specifies a timestamp to resume from. Note that this resume, regardless of configuration file setting, and it will overwrite the persisted timestamp for future resumes.
 
 
 ## Contributing
