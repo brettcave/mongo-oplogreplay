@@ -7,7 +7,11 @@ module Oplogreplayer
 
     @_config = {}
 
-    def self.m2m(config, timestamp = nil)
+    def self.m2m(options)
+
+      config = options[:config]
+      timestamp = options[:timestamp]
+      #testmode = options[:test]
 
       log = Log4r::Logger.new('Oplogreplayer::Replayer')
       log.outputters = Log4r::StdoutOutputter.new(STDERR)
@@ -29,20 +33,20 @@ module Oplogreplayer
       stream = Mongoriver::Stream.new(tailer, bridge)
 
       # If a timestamp is supplied as an argument, override.
-      if timestamp
-        log.info("Timestamp provided, starting at #{timestamp}")
-        stream.run_forever(timestamp)
-      elsif @_config["resume"]
-        log.info("No timestamp provided, determining timestamp from destination")
-        # otherwise, try and resume.
-        # We need persistence of the oplog. Not sure whether to use local fs or destination mongo
-        # destination mongo seems better suited though. I'm going to use the local db for now.
-        stream.run_forever(bridge.getOplogTimestamp)
-      else
-        # No timestamp and no resume.... we're doing a full replay.
-        log.info("No resume, no timestamp - full oplog replay.")
-        stream.run_forever()
-      end
+        if timestamp
+          log.info("Timestamp provided, starting at #{timestamp}")
+          stream.run_forever(timestamp)
+        elsif @_config["resume"]
+          log.info("No timestamp provided, determining timestamp from destination")
+          # otherwise, try and resume.
+          # We need persistence of the oplog. Not sure whether to use local fs or destination mongo
+          # destination mongo seems better suited though. I'm going to use the local db for now.
+          stream.run_forever(bridge.getOplogTimestamp)
+        else
+          # No timestamp and no resume.... we're doing a full replay.
+          log.info("No resume, no timestamp - full oplog replay.")
+          stream.run_forever()
+        end
     end
 
     def self.parseConfig(target, configFile)

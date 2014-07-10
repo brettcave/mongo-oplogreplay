@@ -7,8 +7,10 @@ module Oplogreplayer
     option :config, :type => :string, :required => true, :aliases => "-c", :desc => "The configuration for oplog source"
     # option :resume, :type => :boolean, :default => true, :aliases => :r, :desc => "Resumes from the last recorded timestamp (overrides what's in config"
     option :timestamp, :type => :numeric, :aliases => "-t"
+    # option :test, :type => :boolean, :desc => "Runs in test mode"
     def mongo2mongo()
-        Oplogreplayer::Replayer.m2m(options[:config],options[:timestamp])
+        Oplogreplayer::Replayer.m2m(options)
     end
+
   end
 end
