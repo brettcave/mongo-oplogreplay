@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "cucumber"
   spec.add_development_dependency "aruba"
 
-  spec.add_dependency "mongoriver", "~> 0.3"
+  spec.add_dependency "mongoriver", "~> 0.3.1"
   spec.add_dependency "mongo", "~> 1.10"
   spec.add_dependency "thor", "~> 0.18"
 end
