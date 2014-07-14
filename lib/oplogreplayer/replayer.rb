@@ -45,6 +45,9 @@ module Oplogreplayer
         # otherwise, try and resume.
         # We need persistence of the oplog. Not sure whether to use local fs or destination mongo
         # destination mongo seems better suited though. I'm going to use the local db for now.
+
+        # If an exception is raised, then oplogtimestamp+1 is returned and the problematic op will not be executred
+        # TODO: provide a mechanism to resume using the previous timestamp (as apposed to ts+1) for reruns from raised exceptions.
         stream.run_forever(bridge.getOplogTimestamp)
       else
         # No timestamp and no resume.... we're doing a full replay.
