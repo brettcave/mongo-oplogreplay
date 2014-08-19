@@ -10,5 +10,12 @@ module Oplogreplayer
         Oplogreplayer::Replayer.m2m(options)
     end
 
+    desc "stdout", "Prints operations from the oplog to stdout."
+    option :config, :type => :string, :required => true, :aliases => "-c", :desc => "The configuration for oplog source"
+    option :timestamp, :type => :numeric, :aliases => "-t"
+    def stdout()
+      Oplogreplayer::Replayer.stdout(options)
+    end
+
   end
 end

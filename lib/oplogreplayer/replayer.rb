@@ -1,5 +1,6 @@
 require 'mongoriver'
 require 'oplogreplayer/mongobridge'
+require 'oplogreplayer/stdoutbridge'
 require 'yaml'
 
 module Oplogreplayer
@@ -55,6 +56,47 @@ module Oplogreplayer
         stream.run_forever()
       end
     end
+
+    def self.stdout(options)
+
+      config = options[:config]
+      timestamp = options[:timestamp]
+
+      log = Log4r::Logger.new('Oplogreplayer::Replayer')
+      log.outputters = Log4r::StdoutOutputter.new(STDERR)
+      log.level = Log4r::INFO
+      self.parseConfig(@_config, config)
+
+      sourceConfig = @_config["source"]
+
+      connect_uri = "mongodb://"
+      connect_uri += "#{sourceConfig["username"]}:#{sourceConfig["password"]}@" if sourceConfig["username"] and sourceConfig["password"]
+      connect_uri += "#{sourceConfig["host"]}"
+      connect_uri += "?replicaSet=#{sourceConfig["replicaSet"]}"
+
+      log.info("Setting up client for source")
+      rsClient = Mongo::MongoReplicaSetClient.from_uri(connect_uri)
+
+      log.info("Configuring tailer")
+      tailer = Mongoriver::Tailer.new([rsClient], :existing)
+
+      log.info("Creating stdout bridge")
+      bridge = Oplogreplayer::Stdoutbridge.new()
+
+      log.info("Creating a stream between tailer and bridge")
+      stream = Mongoriver::Stream.new(tailer, bridge)
+
+      # If a timestamp is supplied as an argument, override.
+      if timestamp
+        log.info("Replaying. Timestamp provided, overriding and starting at #{timestamp}")
+        stream.run_forever(timestamp)
+      else
+        # No timestamp and no resume.... we're doing a full replay.
+        log.info("Replaying. No resume and no timestamp - full oplog replay.")
+        stream.run_forever()
+      end
+    end
+
 
     def self.parseConfig(target, configFile)
       if ! ::File.exists?(configFile)
